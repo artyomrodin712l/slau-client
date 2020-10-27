@@ -1,25 +1,51 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from "react";
+import "./App.css";
+import InputData from "./InputData";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component {
+  constructor() {
+    super();
+    this.state = {
+      isLoading: false,
+      rows: 5,
+      columns: 7,
+    };
+  }
+  render() {
+    const tableRowData = [
+      {
+        rowData: ["1", "2", "3", "4", "5"],
+      },
+      {
+        rowData: ["1", "2", "3", "4", "5","6"],
+      },
+      {
+        rowData: ["1", "2", "3", "4", "5","6"],
+      },
+      {
+        rowData: ["1", "2", "3", "4", "5", "8"],
+      },
+      {
+        rowData: ["1", "2", "3", "4", "77"],
+      },
+      {
+        rowData: ["1", "2", "3", "4", "5"],
+      },
+      {
+        rowData: ["1", "2", "3", "4", "5"],
+      }
+    ];
+    const headers = ["1", "2", "3", "4", "5","6","7"];
+    return (
+      <React.Fragment>
+        <InputData
+          rows={this.state.rows}
+          columns={this.state.columns}
+          tableRowData={tableRowData}
+          headers={headers}
+        />
+      </React.Fragment>
+    );
+  }
 }
-
 export default App;
