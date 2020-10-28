@@ -42,7 +42,7 @@ import {
         onCoPilotClick={function noRefCheck() {}}
         onLogoClick={function noRefCheck() {}}
         onMenuItemClick={(item) => {
-          if (item.detail.item.dataset.key == "onDebtChart") {
+          if (item.detail.item.dataset.key === "onDebtChart") {
             props.onDebtChart();
           }
         }}
