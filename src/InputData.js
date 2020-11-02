@@ -32,7 +32,7 @@ class InputData extends React.Component {
         rowData.push(
           <FormInput
             aria-label={i + j}
-            defaultValue={itemRowData}
+            value={itemRowData}
             name={i + j}
           />
         );
@@ -64,21 +64,13 @@ class InputData extends React.Component {
           justifyContent="Start"
           wrap="NoWrap"
         >
-          <Label>Enter rows:</Label>
+          <Label> Enter matrix size:</Label>
           <Input
             tooltip="Enter rows"
             type="Text"
             valueState="None"
             value={this.props.rows}
             onChange={this.handleRowsChange}
-          />
-          <Label>Enter columns:</Label>
-          <Input
-            tooltip="Enter columns"
-            type="Text"
-            valueState="None"
-            value={this.props.columns}
-            onChange={this.handleColumnsChange}
           />
           <FlexBox
             alignItems="Start"
@@ -117,7 +109,10 @@ class InputData extends React.Component {
             </Button>
           </FlexBox>
         </FlexBox>
-
+        <InfoLabel color={7}>
+          {this.props.apiResponse}
+          <br></br>
+        </InfoLabel>
         {console.log(this.props.headers)}
         <Table
           compact={true}
