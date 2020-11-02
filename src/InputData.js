@@ -10,8 +10,8 @@ class InputData extends React.Component {
     this.handleGetRandomInt = this.handleGetRandomInt.bind(this);
     this.handleCalculate = this.handleCalculate.bind(this);
   }
-  handleCalculate(){
-      this.props.onClickCalculate()
+  handleCalculate() {
+    this.props.onClickCalculate();
   }
   handleRowsChange(e) {
     this.props.onRowsChange(e.target.value);
@@ -20,7 +20,7 @@ class InputData extends React.Component {
     this.props.onColumnsChange(e.target.value);
   }
   handleGetRandomInt() {
-    this.props.onClickGetRandom()
+    this.props.onClickGetRandom();
   }
   render() {
     var tableRowData = this.props.tableRowData;
@@ -30,19 +30,27 @@ class InputData extends React.Component {
       item.map((itemRowData, i) => {
         console.log(i);
         rowData.push(
-          <FormInput
-            aria-label={i + j}
-            value={itemRowData}
-            name={i + j}
-          />
+          <FormInput aria-label={i + j} value={itemRowData} name={i + j} />
         );
       });
       return {
         rowData: rowData,
       };
     });
-    console.log(tableRowData);
-    console.log(tableData);
+
+    var calculatedData = this.props.calculatedData;
+    console.log(calculatedData)
+    var calculatedDataFormat = calculatedData.map((item, j) => {
+      var rowData = [];
+        rowData.push(
+          <FormInput aria-label={j} value={item} name={j} />
+        );
+      return {
+        rowData: rowData,
+      };
+    });
+
+    console.log(calculatedDataFormat)
     return (
       <React.Fragment>
         {console.log(this.props.tableData)}
@@ -105,7 +113,7 @@ class InputData extends React.Component {
               submits={false}
               tooltip=""
             >
-             Calculate
+              Calculate
             </Button>
           </FlexBox>
         </FlexBox>
@@ -119,6 +127,12 @@ class InputData extends React.Component {
           condensed={true}
           headers={this.props.headers}
           tableData={tableData}
+        />
+        <Table
+          compact={true}
+          condensed={true}
+          headers={this.props.headers}
+          tableData={calculatedDataFormat}
         />
       </React.Fragment>
     );

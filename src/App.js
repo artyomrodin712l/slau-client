@@ -10,9 +10,10 @@ class App extends Component {
       rows: 5,
       columns: 5,
       tableRowData: [],
+      calculatedData: [],
       headers: [],
       isRandom: false,
-      apiResponse: "API not Connect"
+      apiResponse: "API not Connect",
     };
     this.handleRowsChange = this.handleRowsChange.bind(this);
     this.handleGetRandomInt = this.handleGetRandomInt.bind(this);
@@ -22,23 +23,23 @@ class App extends Component {
     await fetch("http://localhost:9000/slau")
       .then((res) => res.text())
       .then((res) => this.setState({ apiResponse: res }));
-      const url = 'http://localhost:9000/slau';
-      
-      const data = { username: 'example' };
+    const url = "http://localhost:9000/slau";
 
-      try {
-        const response = await fetch(url, {
-          method: 'POST', // или 'PUT'
-          body: JSON.stringify(data), // данные могут быть 'строкой' или {объектом}!
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-        const json = await response.json();
-        console.log('Успех:', JSON.stringify(json));
-      } catch (error) {
-        console.error('Ошибка:', error);
-      }
+    const data = { username: "example" };
+
+    try {
+      const response = await fetch(url, {
+        method: "POST", // или 'PUT'
+        body: JSON.stringify(data), // данные могут быть 'строкой' или {объектом}!
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const json = await response.json();
+      console.log("Успех:", JSON.stringify(json));
+    } catch (error) {
+      console.error("Ошибка:", error);
+    }
   }
   createMass(lv_rows) {
     var tableRowData = [];
@@ -53,8 +54,15 @@ class App extends Component {
     console.log(headers);
     return tableRowData;
   }
-  handleCalculate(tableRowData) {
+  handleCalculate() {
+    var table = this.Calculate(this.state.tableRowData, this.state.rows);
+    this.setState((state, props) => ({
+      calculatedData: table,
+    }));
+  }
+  Calculate(tableRowData, rows) {
     var M;
+    M = rows;
     var Xk = [];
     var Zk = [];
     var Rk = [];
@@ -65,6 +73,10 @@ class App extends Component {
     var i, j;
     var max_iter = 100000;
     var E = 0.001;
+    for (i = 0; i < M; i++) {
+      F[i] = Math.random() * (1 - -1) + -1;
+    }
+    console.log(F);
     /* Вычисляем сумму квадратов элементов вектора F*/
     for (mf = 0, i = 0; i < M; i++) {
       mf += F[i] * F[i];
@@ -75,10 +87,12 @@ class App extends Component {
     for (i = 0; i < M; i++) {
       Xk[i] = 0.2;
     }
-
     /* Задаем начальное значение r0 и z0. */
     for (i = 0; i < M; i++) {
-      for (Sz[i] = 0, j = 0; j < M; j++) Sz[i] += tableRowData[i][j] * Xk[j];
+      Sz[i] = 0;
+      for (j = 0; j < M; j++) {
+        Sz[i] += tableRowData[i][j] * Xk[j];
+      }
       Rk[i] = F[i] - Sz[i];
       Zk[i] = Rk[i];
     }
@@ -107,24 +121,26 @@ class App extends Component {
       beta = Spr1 / Spr;
 
       /* Вычисляем вектор спуска: zk = rk+ beta * zk-1 */
-      for (i = 0; i < M; i++) Zk[i] = Rk[i] + beta * Zk[i];
+      for (i = 0; i < M; i++) {
+        Zk[i] = Rk[i] + beta * Zk[i];
+      }
     } while (
       /* Проверяем условие выхода из итерационного цикла  */
       Spr1 / mf > E * E &&
       Iteration < max_iter
     );
-
-    return 0;
+    console.log(Xk);
+    return Xk;
   }
 
   handleGetRandomInt() {
-    var table = this.getRandomInt()
+    var table = this.getRandomInt();
     this.setState((state, props) => ({
       isRandom: true,
-      tableRowData: table
+      tableRowData: table,
     }));
   }
-  getRandomInt(){
+  getRandomInt() {
     var n = this.state.rows;
     var tableRowData = this.state.tableRowData;
     console.log(this.state.tableRowData);
@@ -133,10 +149,8 @@ class App extends Component {
         if (i === j) {
           tableRowData[i][j] = 0;
         } else {
-          tableRowData[i][j] = Math.floor(
-            Math.random() * Math.floor(100)           
-          );
-          tableRowData[j][i] = tableRowData[i][j]
+          tableRowData[i][j] = Math.floor(Math.random() * Math.floor(100));
+          tableRowData[j][i] = tableRowData[i][j];
         }
       }
     }
@@ -147,25 +161,26 @@ class App extends Component {
     var table = this.createMass(lv_rows);
     this.setState({
       rows: lv_rows,
-      tableRowData: table
+      tableRowData: table,
     });
     console.log(this.state.rows);
   }
   async componentDidMount() {
     var table = this.createMass(this.state.rows);
-    console.log(this.state.isRandom)
+    console.log(this.state.isRandom);
     this.setState({
-      tableRowData: table
+      tableRowData: table,
     });
     this.callAPI();
   }
-  componentDidUpdate(){
-    console.log(this.state.isRandom)
-    if(this.state.isRandom === true){
-      this.getRandomInt()
+  componentDidUpdate() {
+    console.log(this.state.isRandom);
+    if (this.state.isRandom === true) {
+      this.getRandomInt();
     }
   }
   render() {
+    console.log(this.state.calculatedData);
     return (
       <React.Fragment>
         <InputData
@@ -175,7 +190,8 @@ class App extends Component {
           headers={this.state.headers}
           onClickGetRandom={this.handleGetRandomInt}
           onClickCalculate={this.handleCalculate}
-          apiResponse = {this.state.apiResponse}
+          calculatedData={this.state.calculatedData}
+          apiResponse={this.state.apiResponse}
         />
       </React.Fragment>
     );
