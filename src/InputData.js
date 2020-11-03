@@ -23,6 +23,7 @@ class InputData extends React.Component {
     this.props.onClickGetRandom();
   }
   render() {
+    console.log(this.props.apiData)
     var tableRowData = this.props.tableRowData;
     var tableData = tableRowData.map((item, j) => {
       var rowData = [];
@@ -49,6 +50,16 @@ class InputData extends React.Component {
     });
 
     console.log(calculatedDataFormat);
+    var apiData = this.props.apiData;
+    console.log(calculatedData);
+    var apiDataFormat = apiData.map((item, j) => {
+      var rowData = [];
+      rowData.push(<FormInput aria-label={j} value={item} name={j} />);
+      return {
+        rowData: rowData,
+      };
+    });
+
     return (
       <React.Fragment>
         {console.log(this.props.tableData)}
@@ -134,6 +145,15 @@ class InputData extends React.Component {
           condensed={true}
           headers={this.props.headers}
           tableData={calculatedDataFormat}
+        />
+        <InfoLabel color={7}>
+          Gauss method<br></br>
+        </InfoLabel>
+        <Table
+          compact={true}
+          condensed={true}
+          headers={this.props.headers}
+          tableData={apiDataFormat}
         />
          <InfoLabel color={7}>
           Gauss method<br></br>

@@ -13,33 +13,23 @@ class App extends Component {
       calculatedData: [],
       headers: [],
       isRandom: false,
-      apiResponse: "API not Connect",
+      apiData: [],
     };
     this.handleRowsChange = this.handleRowsChange.bind(this);
     this.handleGetRandomInt = this.handleGetRandomInt.bind(this);
     this.handleCalculate = this.handleCalculate.bind(this);
   }
   async callAPI() {
-    await fetch("http://localhost:9000/slau")
-      .then((res) => res.text())
-      .then((res) => this.setState({ apiResponse: res }));
-    const url = "http://localhost:9000/slau";
-
-    const data = { username: "example" };
-
-    try {
-      const response = await fetch(url, {
-        method: "POST", // или 'PUT'
-        body: JSON.stringify(data), // данные могут быть 'строкой' или {объектом}!
-        headers: {
-          "Content-Type": "application/json",
-        },
+    await fetch("http://192.168.0.109:9000/slau")
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        console.log(data);
+        this.setState({
+          apiData: data
+        })
       });
-      const json = await response.json();
-      console.log("Успех:", JSON.stringify(json));
-    } catch (error) {
-      console.error("Ошибка:", error);
-    }
   }
   createMass(lv_rows) {
     var tableRowData = [];
@@ -173,13 +163,9 @@ class App extends Component {
     });
     this.callAPI();
   }
-  componentDidUpdate() {
-    console.log(this.state.isRandom);
-    if (this.state.isRandom === true) {
-      this.getRandomInt();
-    }
-  }
+  componentDidUpdate() {}
   render() {
+    console.log(this.state.apiData)
     console.log(this.state.calculatedData);
     return (
       <React.Fragment>
@@ -191,7 +177,7 @@ class App extends Component {
           onClickGetRandom={this.handleGetRandomInt}
           onClickCalculate={this.handleCalculate}
           calculatedData={this.state.calculatedData}
-          apiResponse={this.state.apiResponse}
+          apiData={this.state.apiData}
         />
       </React.Fragment>
     );
