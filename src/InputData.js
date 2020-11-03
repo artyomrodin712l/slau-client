@@ -30,7 +30,7 @@ class InputData extends React.Component {
       item.map((itemRowData, i) => {
         console.log(i);
         rowData.push(
-          <FormInput aria-label={i + j} value={itemRowData} name={i + j} />
+          <FormInput  aria-label={i + j} value={itemRowData} name={i + j} />
         );
       });
       return {
@@ -39,18 +39,16 @@ class InputData extends React.Component {
     });
 
     var calculatedData = this.props.calculatedData;
-    console.log(calculatedData)
+    console.log(calculatedData);
     var calculatedDataFormat = calculatedData.map((item, j) => {
       var rowData = [];
-        rowData.push(
-          <FormInput aria-label={j} value={item} name={j} />
-        );
+      rowData.push(<FormInput aria-label={j} value={item} name={j} />);
       return {
         rowData: rowData,
       };
     });
 
-    console.log(calculatedDataFormat)
+    console.log(calculatedDataFormat);
     return (
       <React.Fragment>
         {console.log(this.props.tableData)}
@@ -128,12 +126,18 @@ class InputData extends React.Component {
           headers={this.props.headers}
           tableData={tableData}
         />
+        <InfoLabel color={7}>
+          Сonjugate gradient method<br></br>
+        </InfoLabel>
         <Table
           compact={true}
           condensed={true}
           headers={this.props.headers}
           tableData={calculatedDataFormat}
         />
+         <InfoLabel color={7}>
+          Gauss method<br></br>
+        </InfoLabel>
       </React.Fragment>
     );
   }
