@@ -10,7 +10,7 @@ class App extends Component {
       rows: 5,
       columns: 5,
       tableRowData: [],
-      calculatedData: [],
+      isCalculated: true,
       headers: [],
       isRandom: false,
       apiData: [],
@@ -20,31 +20,25 @@ class App extends Component {
     this.handleCalculate = this.handleCalculate.bind(this);
   }
   async callAPI() {
-    const url = "http://192.168.0.109:9000/slau";
-    var payload = {
-      a: 1,
-      b: 2
-  };
-  
-  var data = new FormData();
-  data.append( "json", JSON.stringify( payload ) );
-  
-  fetch(url,
-  {
+    this.setState({ isCalculated: false });
+    const url = "http://localhost:9000/slau";
+    var data = this.state.tableRowData;
+    console.log(data);
+    fetch(url, {
       method: "POST",
-      body: data
-  })
-  .then(function(res){ return res.json(); })
-  .then(function(data){ alert( JSON.stringify( data ) ) })
-    await fetch(url)
-      .then((response) => {
-        return response.json();
+      body: JSON.stringify({ table: data }),
+      headers: { "Content-Type": "application/json" },
+    })
+      .then(function (res) {
+        console.log(res);
+        return res.json();
       })
       .then((data) => {
         console.log(data);
         this.setState({
-          apiData: data
-        })
+          apiData: data,
+          isCalculated: true
+        });
       });
   }
   createMass(lv_rows) {
@@ -65,6 +59,7 @@ class App extends Component {
     this.setState((state, props) => ({
       calculatedData: table,
     }));
+    this.callAPI();
   }
   Calculate(tableRowData, rows) {
     var M;
@@ -168,8 +163,9 @@ class App extends Component {
     this.setState({
       rows: lv_rows,
       tableRowData: table,
+      apiData: []
     });
-    console.log(this.state.rows);
+    
   }
   async componentDidMount() {
     var table = this.createMass(this.state.rows);
@@ -177,12 +173,10 @@ class App extends Component {
     this.setState({
       tableRowData: table,
     });
-    this.callAPI();
   }
   componentDidUpdate() {}
   render() {
-    console.log(this.state.apiData)
-    console.log(this.state.calculatedData);
+    console.log(this.state.apiData);
     return (
       <React.Fragment>
         <InputData
@@ -194,6 +188,7 @@ class App extends Component {
           onClickCalculate={this.handleCalculate}
           calculatedData={this.state.calculatedData}
           apiData={this.state.apiData}
+          isCalculated={this.state.isCalculated}
         />
       </React.Fragment>
     );

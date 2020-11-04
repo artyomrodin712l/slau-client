@@ -1,6 +1,7 @@
 import React from "react";
 import { Input, Label, FlexBox, Button } from "@ui5/webcomponents-react";
 import { Shellbar, InfoLabel, Table, FormInput } from "fundamental-react";
+import Loader from "./Loader";
 
 class InputData extends React.Component {
   constructor(props) {
@@ -23,35 +24,20 @@ class InputData extends React.Component {
     this.props.onClickGetRandom();
   }
   render() {
-    console.log(this.props.apiData)
     var tableRowData = this.props.tableRowData;
     var tableData = tableRowData.map((item, j) => {
       var rowData = [];
 
       item.map((itemRowData, i) => {
         console.log(i);
-        rowData.push(
-          <FormInput  aria-label={i + j} value={itemRowData} name={i + j} />
-        );
+        rowData.push(<FormInput value={itemRowData} />);
       });
       return {
         rowData: rowData,
       };
     });
 
-    var calculatedData = this.props.calculatedData;
-    console.log(calculatedData);
-    var calculatedDataFormat = calculatedData.map((item, j) => {
-      var rowData = [];
-      rowData.push(<FormInput aria-label={j} value={item} name={j} />);
-      return {
-        rowData: rowData,
-      };
-    });
-
-    console.log(calculatedDataFormat);
     var apiData = this.props.apiData;
-    console.log(calculatedData);
     var apiDataFormat = apiData.map((item, j) => {
       var rowData = [];
       rowData.push(<FormInput aria-label={j} value={item} name={j} />);
@@ -59,7 +45,20 @@ class InputData extends React.Component {
         rowData: rowData,
       };
     });
-
+    const calculatedTable = (
+      <React.Fragment>
+        {this.props.isCalculated ? (
+          <Table
+            compact={true}
+            condensed={true}
+            headers={this.props.headers}
+            tableData={apiDataFormat}
+          />
+        ) : (
+          <Loader />
+        )}
+      </React.Fragment>
+    );
     return (
       <React.Fragment>
         {console.log(this.props.tableData)}
@@ -125,39 +124,24 @@ class InputData extends React.Component {
               Calculate
             </Button>
           </FlexBox>
+          {calculatedTable}
+          <InfoLabel color={7}>
+            Table
+            <br></br>
+          </InfoLabel>
+          <Table
+            compact={true}
+            condensed={true}
+            headers={this.props.headers}
+            tableData={tableData}
+          />
+          <InfoLabel color={7}>
+            Сonjugate gradient method<br></br>
+          </InfoLabel>
+          <InfoLabel color={7}>
+            Gauss method<br></br>
+          </InfoLabel>
         </FlexBox>
-        <InfoLabel color={7}>
-          {this.props.apiResponse}
-          <br></br>
-        </InfoLabel>
-        {console.log(this.props.headers)}
-        <Table
-          compact={true}
-          condensed={true}
-          headers={this.props.headers}
-          tableData={tableData}
-        />
-        <InfoLabel color={7}>
-          Сonjugate gradient method<br></br>
-        </InfoLabel>
-        <Table
-          compact={true}
-          condensed={true}
-          headers={this.props.headers}
-          tableData={calculatedDataFormat}
-        />
-        <InfoLabel color={7}>
-          Gauss method<br></br>
-        </InfoLabel>
-        <Table
-          compact={true}
-          condensed={true}
-          headers={this.props.headers}
-          tableData={apiDataFormat}
-        />
-         <InfoLabel color={7}>
-          Gauss method<br></br>
-        </InfoLabel>
       </React.Fragment>
     );
   }
