@@ -20,7 +20,23 @@ class App extends Component {
     this.handleCalculate = this.handleCalculate.bind(this);
   }
   async callAPI() {
-    await fetch("http://192.168.0.109:9000/slau")
+    const url = "http://192.168.0.109:9000/slau";
+    var payload = {
+      a: 1,
+      b: 2
+  };
+  
+  var data = new FormData();
+  data.append( "json", JSON.stringify( payload ) );
+  
+  fetch(url,
+  {
+      method: "POST",
+      body: data
+  })
+  .then(function(res){ return res.json(); })
+  .then(function(data){ alert( JSON.stringify( data ) ) })
+    await fetch(url)
       .then((response) => {
         return response.json();
       })
