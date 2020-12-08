@@ -14,10 +14,12 @@ class App extends Component {
       headers: [],
       isRandom: false,
       apiData: [],
+      gaussData: [],
     };
     this.handleRowsChange = this.handleRowsChange.bind(this);
     this.handleGetRandomInt = this.handleGetRandomInt.bind(this);
     this.handleCalculate = this.handleCalculate.bind(this);
+    this.handleGauss = this.handleGauss.bind(this);
   }
   async callAPI() {
     this.setState({ isCalculated: false });
@@ -37,7 +39,7 @@ class App extends Component {
         console.log(data);
         this.setState({
           apiData: data,
-          isCalculated: true
+          isCalculated: true,
         });
       });
   }
@@ -55,85 +57,103 @@ class App extends Component {
     return tableRowData;
   }
   handleCalculate() {
-    var table = this.Calculate(this.state.tableRowData, this.state.rows);
-    this.setState((state, props) => ({
-      calculatedData: table,
-    }));
     this.callAPI();
   }
-  Calculate(tableRowData, rows) {
+  GlavElem(k, mas, otv, M) {
+    var i, j;
+    var i_max = k;
+    var j_max = k;
+    var temp;
+
+    //Ищем максимальный по модулю элемент
+    for (i = k; i < M; i++) {
+      for (j = k; j < M; j++) {
+        if (Math.abs(mas[i_max][j_max]) < Math.abs(mas[i][j])) {
+          i_max = i;
+          j_max = j;
+        }
+      }
+    }
+    //Переставляем строки
+    for (j = k; j < M + 1; j++) {
+      temp = mas[k][j];
+      mas[k][j] = mas[i_max][j];
+      mas[i_max][j] = temp;
+    }
+    //Переставляем столбцы
+    for (i = 0; i < M; i++) {
+      temp = mas[i][k];
+      mas[i][k] = mas[i][j_max];
+      mas[i][j_max] = temp;
+    }
+    //Учитываем изменение порядка корней
+    i = otv[k];
+    otv[k] = otv[j_max];
+    otv[j_max] = i;
+  }
+
+  gauss(tableRowData, rows) {
+    var i, j, k;
     var M;
     M = rows;
-    var Xk = [];
-    var Zk = [];
-    var Rk = [];
-    var Sz = [];
-    var alpha, beta, mf;
-    var Spr, Spr1, Spz;
+    var otv = [];
+    var x = [];
+    var mas = [];
     var F = [];
-    var i, j;
-    var max_iter = 100000;
-    var E = 0.001;
+    for (i = 0; i < rows; i++) {
+      mas[i] = [];
+      for ( j = 0; j < rows; j++) {
+        mas[i][j] = 0;
+      }
+    }
     for (i = 0; i < M; i++) {
       F[i] = Math.random() * (1 - -1) + -1;
     }
-    console.log(F);
-    /* Вычисляем сумму квадратов элементов вектора F*/
-    for (mf = 0, i = 0; i < M; i++) {
-      mf += F[i] * F[i];
+    
+    for (i = 0; i < M; i++) {
+      for (j = 0; j < M; j++) {     
+        console.log(mas)   
+        console.log(tableRowData)
+        mas[i][j] = tableRowData[i][j];
+      }
+      mas[i][M] = F[i];
     }
 
-    /* Задаем начальное приближение корней. В Хk хранятся значения корней
-     * к-й итерации. */
     for (i = 0; i < M; i++) {
-      Xk[i] = 0.2;
+      otv[i] = i;
     }
-    /* Задаем начальное значение r0 и z0. */
-    for (i = 0; i < M; i++) {
-      Sz[i] = 0;
-      for (j = 0; j < M; j++) {
-        Sz[i] += tableRowData[i][j] * Xk[j];
+    for (k = 0; k < M; k++) {
+      //На какой позиции должен стоять главный элемент
+      this.GlavElem(k, mas, otv, M); //Установка главного элемента
+      for (j = M; j >= k; j--) {
+        mas[k][j] /= mas[k][k];
       }
-      Rk[i] = F[i] - Sz[i];
-      Zk[i] = Rk[i];
-    }
-    var Iteration = 0;
-    do {
-      Iteration++;
-      /* Вычисляем числитель и знаменатель для коэффициента
-       * alpha = (rk-1,rk-1)/(Azk-1,zk-1) */
-      Spz = 0;
-      Spr = 0;
-      for (i = 0; i < M; i++) {
-        for (Sz[i] = 0, j = 0; j < M; j++) {
-          Sz[i] += tableRowData[i][j] * Zk[j];
+
+      for (i = k + 1; i < M; i++) {
+        for (j = M; j >= k; j--) {
+          mas[i][j] -= mas[k][j] * mas[i][k];
         }
-        Spz += Sz[i] * Zk[i];
-        Spr += Rk[i] * Rk[i];
       }
-      alpha = Spr / Spz; /*  alpha    */
-      Spr1 = 0;
-      for (i = 0; i < M; i++) {
-        Xk[i] += alpha * Zk[i];
-        Rk[i] -= alpha * Sz[i];
-        Spr1 += Rk[i] * Rk[i];
+    }
+    //Обратный ход
+    for (i = 0; i < M; i++) {
+      x[i] = mas[i][M];
+    }
+    for (i = M - 2; i >= 0; i--) {
+      for (j = i + 1; j < M; j++) {
+        x[i] -= x[j] * mas[i][j];
       }
-      /* Вычисляем  beta  */
-      beta = Spr1 / Spr;
+    }
 
-      /* Вычисляем вектор спуска: zk = rk+ beta * zk-1 */
-      for (i = 0; i < M; i++) {
-        Zk[i] = Rk[i] + beta * Zk[i];
-      }
-    } while (
-      /* Проверяем условие выхода из итерационного цикла  */
-      Spr1 / mf > E * E &&
-      Iteration < max_iter
-    );
-    console.log(Xk);
-    return Xk;
+    return x;
   }
 
+  handleGauss() {
+    var table = this.gauss(this.state.tableRowData, this.state.rows);
+    this.setState((state, props) => ({
+      gaussData: table,
+    }));
+  }
   handleGetRandomInt() {
     var table = this.getRandomInt();
     this.setState((state, props) => ({
@@ -163,9 +183,8 @@ class App extends Component {
     this.setState({
       rows: lv_rows,
       tableRowData: table,
-      apiData: []
+      apiData: [],
     });
-    
   }
   async componentDidMount() {
     var table = this.createMass(this.state.rows);
@@ -177,6 +196,7 @@ class App extends Component {
   componentDidUpdate() {}
   render() {
     console.log(this.state.apiData);
+    console.log(this.state.gaussData);
     return (
       <React.Fragment>
         <InputData
@@ -186,6 +206,8 @@ class App extends Component {
           headers={this.state.headers}
           onClickGetRandom={this.handleGetRandomInt}
           onClickCalculate={this.handleCalculate}
+          gaussData={this.state.gaussData}
+          onClickGauss={this.handleGauss}         
           calculatedData={this.state.calculatedData}
           apiData={this.state.apiData}
           isCalculated={this.state.isCalculated}

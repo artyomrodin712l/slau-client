@@ -10,6 +10,7 @@ class InputData extends React.Component {
     this.handleColumnsChange = this.handleColumnsChange.bind(this);
     this.handleGetRandomInt = this.handleGetRandomInt.bind(this);
     this.handleCalculate = this.handleCalculate.bind(this);
+    this.handleGauss = this.handleGauss.bind(this);
   }
   handleCalculate() {
     this.props.onClickCalculate();
@@ -22,6 +23,9 @@ class InputData extends React.Component {
   }
   handleGetRandomInt() {
     this.props.onClickGetRandom();
+  }
+  handleGauss(){
+    this.props.onClickGauss();
   }
   render() {
     var tableRowData = this.props.tableRowData;
@@ -45,6 +49,17 @@ class InputData extends React.Component {
         rowData: rowData,
       };
     });
+    var gaussData = this.props.gaussData;
+    console.log(gaussData)
+    var gaussDataFormat = gaussData.map((item, j) => {
+      var rowData = [];
+        rowData.push(
+          <FormInput aria-label={j} value={item} name={j} />
+        );
+      return {
+        rowData: rowData,
+      };
+    });
     const calculatedTable = (
       <React.Fragment>
         {this.props.isCalculated ? (
@@ -59,16 +74,24 @@ class InputData extends React.Component {
         )}
       </React.Fragment>
     );
+    const gaussTable = (
+      <React.Fragment>
+        {this.props.isCalculated ? (
+          <Table
+            compact={true}
+            condensed={true}
+            headers={this.props.headers}
+            tableData={gaussDataFormat}
+          />
+        ) : (
+          <Loader />
+        )}
+      </React.Fragment>
+    );
     return (
       <React.Fragment>
         {console.log(this.props.tableData)}
         <Shellbar
-          logo={
-            <img
-              alt="GGTU"
-              src="//unpkg.com/fundamental-styles/dist/images/sap-logo.png"
-            />
-          }
           productTitle="System of linear algebraic equations"
         />
         <InfoLabel color={7}>
@@ -123,8 +146,29 @@ class InputData extends React.Component {
             >
               Calculate
             </Button>
+            <Button
+              className=""
+              design="Positive"
+              disabled={false}
+              icon="employee"
+              iconEnd={false}
+              onClick={this.handleGauss}
+              slot=""
+              style={{}}
+              submits={false}
+              tooltip=""
+            >
+              Gauss
+            </Button>
           </FlexBox>
+          <InfoLabel color={7}>
+            Сonjugate gradient method<br></br>
+          </InfoLabel>
           {calculatedTable}
+          <InfoLabel color={7}>
+            Gauss method<br></br>
+          </InfoLabel>
+          {gaussTable}
           <InfoLabel color={7}>
             Table
             <br></br>
@@ -137,9 +181,6 @@ class InputData extends React.Component {
           />
           <InfoLabel color={7}>
             Сonjugate gradient method<br></br>
-          </InfoLabel>
-          <InfoLabel color={7}>
-            Gauss method<br></br>
           </InfoLabel>
         </FlexBox>
       </React.Fragment>
