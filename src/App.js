@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import "./App.css";
 import InputData from "./InputData";
 
+
 class App extends Component {
   constructor() {
     super();
@@ -15,33 +16,56 @@ class App extends Component {
       isRandom: false,
       apiData: [],
       gaussData: [],
+      matrixFreeElements: [],
+      timeCGM: 0,
+      timeGauss: 0,
     };
     this.handleRowsChange = this.handleRowsChange.bind(this);
     this.handleGetRandomInt = this.handleGetRandomInt.bind(this);
     this.handleCalculate = this.handleCalculate.bind(this);
     this.handleGauss = this.handleGauss.bind(this);
+    this.handleGetRandomFreeElements = this.handleGetRandomFreeElements.bind(this);
   }
   async callAPI() {
     this.setState({ isCalculated: false });
     const url = "http://localhost:9000/slau";
+    var matrix = this.state.matrixFreeElements;
     var data = this.state.tableRowData;
     console.log(data);
-    fetch(url, {
-      method: "POST",
-      body: JSON.stringify({ table: data }),
-      headers: { "Content-Type": "application/json" },
-    })
-      .then(function (res) {
-        console.log(res);
-        return res.json();
-      })
-      .then((data) => {
-        console.log(data);
-        this.setState({
-          apiData: data,
-          isCalculated: true,
-        });
+    var xml = new XMLHttpRequest();
+    xml.open("POST",url)
+    xml.responseType = 'json';
+    xml.setRequestHeader('Content-Type', 'application/json');
+    xml.send(JSON.stringify({ table: data, matrix: matrix }))
+    xml.onload = () => {
+      if (xml.status !== 200) { // анализируем HTTP-статус ответа, если статус не 200, то произошла ошибка
+        alert(`Ошибка ${xml.status}: ${xml.statusText}`); // Например, 404: Not Found
+      }
+      const data = xml.response
+      console.log(xml)
+      console.log(xml.response)
+      this.setState({
+        apiData: data,
+        isCalculated: true,
       });
+    }
+    // fetch(url, {
+    //   method: "POST",
+    //   body: JSON.stringify({ table: data, matrix: matrix }),
+    //   headers: { "Content-Type": "application/json" },
+    //   })
+    //   .then(function (res) {
+    //     console.log(res);
+    //     return res.json();
+    //   })
+    //   .then((data) => {
+    //     console.log(data);
+    //     this.setState({
+    //       apiData: data,
+    //       isCalculated: true,
+    //     });
+    //   });
+      
   }
   createMass(lv_rows) {
     var tableRowData = [];
@@ -56,8 +80,33 @@ class App extends Component {
     console.log(headers);
     return tableRowData;
   }
+  createFreeMass(lv_rows) {
+    var matrixData = [];
+    for (var i = 0; i < lv_rows; i++) {
+      matrixData[i] = [0]
+      
+    }
+    return matrixData;
+  }
   handleCalculate() {
+    var time = performance.now();
     this.callAPI();
+    var timeEnd 
+    timeEnd = performance.now() - time;
+    console.log(timeEnd);
+    this.setState({
+      timeCGM: timeEnd
+    });
+    /*
+    var time = performance.now();
+    var table = this.Calculate(this.state.tableRowData, this.state.rows, this.state.matrixFreeElements);
+    var timeEnd 
+    timeEnd = performance.now() - time;
+    console.log(timeEnd);
+    this.setState((state, props) => ({
+      apiData: table,
+      timeCGM: timeEnd
+    }));*/
   }
   GlavElem(k, mas, otv, M) {
     var i, j;
@@ -91,8 +140,8 @@ class App extends Component {
     otv[k] = otv[j_max];
     otv[j_max] = i;
   }
-
-  gauss(tableRowData, rows) {
+ 
+  gauss(tableRowData, rows, matrix) {
     var i, j, k;
     var M;
     M = rows;
@@ -107,9 +156,9 @@ class App extends Component {
       }
     }
     for (i = 0; i < M; i++) {
-      F[i] = Math.random() * (1 - -1) + -1;
+      F[i] = matrix[i];
     }
-    
+    console.log(matrix);
     for (i = 0; i < M; i++) {
       for (j = 0; j < M; j++) {     
         console.log(mas)   
@@ -147,12 +196,17 @@ class App extends Component {
 
     return x;
   }
-
   handleGauss() {
-    var table = this.gauss(this.state.tableRowData, this.state.rows);
+    var time = performance.now();
+    var table = this.gauss(this.state.tableRowData, this.state.rows, this.state.matrixFreeElements);
+    var timeEnd 
+    timeEnd = performance.now() - time;
+    console.log(timeEnd);
     this.setState((state, props) => ({
       gaussData: table,
+      timeGauss: timeEnd
     }));
+    
   }
   handleGetRandomInt() {
     var table = this.getRandomInt();
@@ -177,33 +231,59 @@ class App extends Component {
     }
     return tableRowData;
   }
-
+  handleGetRandomFreeElements(){
+    var table = this.getRandomFreeElements();
+    this.setState((state, props) => ({
+      isRandom: true,
+      matrixFreeElements: table,
+    }));
+  }
+  getRandomFreeElements() {
+    var n = this.state.rows;
+    var freeElements = this.state.matrixFreeElements;
+    console.log(this.state.matrixFreeElements);
+    for (var i = 0; i < n; i++) {
+          freeElements[i]= Math.random() * (1 - -1) + -1;
+        }
+    return freeElements;
+  }
   handleRowsChange(lv_rows) {
     var table = this.createMass(lv_rows);
+    var matrix = this.createFreeMass(lv_rows);
     this.setState({
       rows: lv_rows,
       tableRowData: table,
+      matrixFreeElements: matrix,
       apiData: [],
     });
   }
   async componentDidMount() {
     var table = this.createMass(this.state.rows);
+    var matrix = this.createFreeMass(this.state.rows);
     console.log(this.state.isRandom);
     this.setState({
       tableRowData: table,
+      matrixFreeElements: matrix
     });
+    
   }
+  
   componentDidUpdate() {}
   render() {
     console.log(this.state.apiData);
     console.log(this.state.gaussData);
+    console.log(this.state.matrixFreeElements);
     return (
       <React.Fragment>
         <InputData
           rows={this.state.rows}
+          timeCGM = {this.state.timeCGM}
+          timeGauss = {this.state.timeGauss}
           onRowsChange={this.handleRowsChange}
           tableRowData={this.state.tableRowData}
           headers={this.state.headers}
+          matrixFreeElements = {this.state.matrixFreeElements}
+          onClickGetRandomFree={this.handleGetRandomFreeElements}
           onClickGetRandom={this.handleGetRandomInt}
           onClickCalculate={this.handleCalculate}
           gaussData={this.state.gaussData}

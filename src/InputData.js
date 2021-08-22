@@ -1,5 +1,5 @@
 import React from "react";
-import { Input, Label, FlexBox, Button } from "@ui5/webcomponents-react";
+import { Input, FlexBox, Button } from "@ui5/webcomponents-react";
 import { Shellbar, InfoLabel, Table, FormInput } from "fundamental-react";
 import Loader from "./Loader";
 
@@ -11,6 +11,7 @@ class InputData extends React.Component {
     this.handleGetRandomInt = this.handleGetRandomInt.bind(this);
     this.handleCalculate = this.handleCalculate.bind(this);
     this.handleGauss = this.handleGauss.bind(this);
+    this.handleGetRandomFreeElements = this.handleGetRandomFreeElements.bind(this)
   }
   handleCalculate() {
     this.props.onClickCalculate();
@@ -24,6 +25,9 @@ class InputData extends React.Component {
   handleGetRandomInt() {
     this.props.onClickGetRandom();
   }
+  handleGetRandomFreeElements() {
+    this.props.onClickGetRandomFree();
+  }
   handleGauss(){
     this.props.onClickGauss();
   }
@@ -34,7 +38,7 @@ class InputData extends React.Component {
 
       item.map((itemRowData, i) => {
         console.log(i);
-        rowData.push(<FormInput value={itemRowData} />);
+        rowData.push(<Input value={itemRowData} />);
       });
       return {
         rowData: rowData,
@@ -56,6 +60,14 @@ class InputData extends React.Component {
         rowData.push(
           <FormInput aria-label={j} value={item} name={j} />
         );
+      return {
+        rowData: rowData,
+      };
+    });
+    var matrixData = this.props.matrixFreeElements;
+    var matrixDataFormat = matrixData.map((item, j) => {
+      var rowData = [];
+      rowData.push(<Input aria-label={j} value={item} name={j} />);
       return {
         rowData: rowData,
       };
@@ -103,7 +115,6 @@ class InputData extends React.Component {
           justifyContent="Start"
           wrap="NoWrap"
         >
-          <Label> Enter matrix size:</Label>
           <Input
             tooltip="Enter rows"
             type="Text"
@@ -111,6 +122,8 @@ class InputData extends React.Component {
             value={this.props.rows}
             onChange={this.handleRowsChange}
           />
+         <InfoLabel>Time of calculating conjugate gradient method</InfoLabel>
+         <FormInput value = {this.props.timeCGM}></FormInput>
           <FlexBox
             alignItems="Start"
             direction="Row"
@@ -131,6 +144,20 @@ class InputData extends React.Component {
               tooltip=""
             >
               Random
+            </Button>
+            <Button
+              className=""
+              design="Default"
+              disabled={false}
+              icon="employee"
+              iconEnd={false}
+              onClick={this.handleGetRandomFreeElements}
+              slot=""
+              style={{}}
+              submits={false}
+              tooltip=""
+            >
+              Random free elements
             </Button>
             <Button
               className=""
@@ -178,10 +205,20 @@ class InputData extends React.Component {
             condensed={true}
             headers={this.props.headers}
             tableData={tableData}
+            onChange = {tableData}
           />
           <InfoLabel color={7}>
-            Сonjugate gradient method<br></br>
+            Matrix free elements
+            <br></br>
           </InfoLabel>
+          <Table
+            compact={true}
+            condensed={true}
+            headers={this.props.headers}
+            tableData={matrixDataFormat}
+            onChange = {this.props.matrixFreeElements}
+
+          />
         </FlexBox>
       </React.Fragment>
     );
